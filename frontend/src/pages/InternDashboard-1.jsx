@@ -2,50 +2,60 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '../context/NavigationContext';
 import InternLayout from '../components/InternLayout';
 
-const SeatReserve = ({ onBack, user }) => {
+const ParkingReserve = ({ onBack, user }) => {
   const [activeFilter, setActiveFilter] = useState('All Reservations');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [reservations, setReservations] = useState([
     {
-      id: 'RSV-00123',
-      seat: 'Desk B3 - Main Area',
-      location: 'Floor 2, Section A',
+      id: 'PV-00123',
+      slot: 'P-001 - Visitor Parking',
+      location: 'Main Parking Lot',
       date: 'Today, Aug 15',
       time: '8:00 AM - 6:00 PM',
-      status: 'active'
+      status: 'active',
+      visitorName: 'John Smith',
+      licensePlate: 'ABC-123'
     },
     {
-      id: 'RSV-00124',
-      seat: 'Desk A1 - Window Side',
-      location: 'Floor 3, Section C',
+      id: 'PV-00124',
+      slot: 'P-005 - VIP Parking',
+      location: 'Building A Entrance',
       date: 'Wed, Aug 17',
       time: '9:00 AM - 5:00 PM',
-      status: 'upcoming'
+      status: 'upcoming',
+      visitorName: 'Sarah Johnson',
+      licensePlate: 'XYZ-789'
     },
     {
-      id: 'RSV-00125',
-      seat: 'Desk C2 - Quiet Zone',
-      location: 'Floor 1, Section B',
+      id: 'PV-00125',
+      slot: 'P-012 - Covered Parking',
+      location: 'Basement Level',
       date: 'Fri, Aug 19',
       time: '10:00 AM - 4:00 PM',
-      status: 'upcoming'
+      status: 'upcoming',
+      visitorName: 'Michael Chen',
+      licensePlate: 'DEF-456'
     },
     {
-      id: 'RSV-00122',
-      seat: 'Desk A2 - Main Area',
-      location: 'Floor 2, Section A',
+      id: 'PV-00122',
+      slot: 'P-003 - Visitor Parking',
+      location: 'East Wing',
       date: 'Mon, Aug 14',
       time: 'Full Day',
-      status: 'past'
+      status: 'past',
+      visitorName: 'Emily Williams',
+      licensePlate: 'GHI-789'
     },
     {
-      id: 'RSV-00120',
-      seat: 'Desk D5 - Collaboration Zone',
-      location: 'Floor 2, Section D',
+      id: 'PV-00120',
+      slot: 'P-008 - Handicap Parking',
+      location: 'North Entrance',
       date: 'Thu, Aug 10',
       time: '1:00 PM - 5:00 PM',
-      status: 'cancelled'
+      status: 'cancelled',
+      visitorName: 'David Brown',
+      licensePlate: 'JKL-012'
     }
   ]);
 
@@ -66,7 +76,7 @@ const SeatReserve = ({ onBack, user }) => {
     const reservation = reservations.find(r => r.id === id);
     
     if (reservation && reservation.status === 'upcoming') {
-      if (window.confirm("Are you sure you want to cancel this reservation?")) {
+      if (window.confirm("Are you sure you want to cancel this parking reservation?")) {
         setReservations(prev => prev.map(r => 
           r.id === id ? { ...r, status: 'cancelled' } : r
         ));
@@ -77,7 +87,7 @@ const SeatReserve = ({ onBack, user }) => {
   const handleEditReservation = (id) => {
     const reservation = reservations.find(r => r.id === id);
     if (reservation) {
-      alert(`Editing reservation for: ${reservation.seat}`);
+      alert(`Editing parking reservation for: ${reservation.visitorName} at ${reservation.slot}`);
     }
   };
 
@@ -152,362 +162,567 @@ const SeatReserve = ({ onBack, user }) => {
   };
 
   return (
-    <InternLayout title="Reservations Management" user={user}>
-      <style>{`
-        /* Page Header */
+    <InternLayout title="Visitor Parking Management" user={user}>
+      {/* CSS remains unchanged */}
+       <style>{`
+      :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --primary-light: #eef2ff;
+        --secondary: #64748b;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --success: #10b981;
+        --success-light: #d1fae5;
+        --danger: #ef4444;
+        --danger-light: #fee2e2;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --border: #e2e8f0;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      
+      /* Page Header */
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border);
+      }
+      
+      .page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+      }
+      
+      .page-subtitle {
+        font-size: 14px;
+        color: var(--secondary);
+        font-weight: 500;
+      }
+      
+      /* Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      
+      .dashboard-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border);
+      }
+      
+      .card-title {
+        font-size: 14px;
+        color: var(--secondary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      
+      .card-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+      }
+      
+      .card-subtext {
+        font-size: 12px;
+        color: var(--secondary);
+        font-weight: 500;
+      }
+      
+      .card-green {
+        border-top: 4px solid var(--success);
+      }
+      
+      .card-blue {
+        border-top: 4px solid var(--primary);
+      }
+      
+      .card-orange {
+        border-top: 4px solid var(--warning);
+      }
+      
+      /* Visitor Form */
+      .visitor-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      
+      .form-label {
+        display: block;
+        font-size: 14px;
+        color: var(--dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      
+      .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+      }
+      
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+      
+      /* Parking Map */
+      .parking-map {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .parking-slot {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      
+      .parking-slot:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      }
+      
+      .slot-id {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+      }
+      
+      .slot-status {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        display: inline-block;
+      }
+      
+      .status-available {
+        background: var(--success-light);
+        color: var(--success);
+      }
+      
+      .status-reserved {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+      
+      .status-occupied {
+        background: var(--danger-light);
+        color: var(--danger);
+      }
+      
+      .status-changed {
+        background: var(--warning-light);
+        color: var(--warning);
+      }
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--border);
+      }
+      
+      /* Reservations Container */
+      .reservations-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        padding: 2rem;
+        border: 1px solid var(--border);
+      }
+
+      .reservations-header {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1fr 0.8fr 1fr 1fr;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background: white;
+        border-radius: 12px;
+        font-weight: 700;
+        color: var(--dark);
+        border: 1px solid var(--border);
+        margin-bottom: 1rem;
+      }
+      
+      .reservation-card {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+      }
+      
+      .reservation-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+      }
+      
+      .reservation-details {
+        flex: 1;
+      }
+      
+      .reservation-title {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+        font-size: 16px;
+      }
+      
+      .reservation-meta {
+        font-size: 14px;
+        color: var(--secondary);
+        font-weight: 500;
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+      
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .reservation-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+      
+      .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        background: var(--light);
+        color: var(--secondary);
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+      
+      .btn-icon:hover {
+        transform: scale(1.05);
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+      
+      /* Buttons */
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+      }
+      
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+      }
+      
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--secondary);
+      }
+      
+      .btn-outline:hover {
+        background: var(--light);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .dashboard-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      
+      @media (max-width: 768px) {
         .page-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 2rem;
-          background: rgba(255, 255, 255, 0.95);
-          padding: 2rem;
-          border-radius: 20px;
-          box-shadow: var(--card-shadow);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-        }
-        
-        .page-title {
-          font-size: 28px;
-          font-weight: 700;
-          color: var(--dark);
-          margin-bottom: 0.5rem;
-        }
-        
-        .page-subtitle {
-          font-size: 16px;
-          color: var(--secondary);
-          font-weight: 500;
-        }
-        
-        /* Filters */
-        .filters {
-          display: flex;
+          flex-direction: column;
           gap: 1rem;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-          align-items: center;
+          text-align: left;
+          align-items: flex-start;
         }
         
-        .filter-item {
-          padding: 0.75rem 1.5rem;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.9);
-          color: var(--secondary);
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: 2px solid transparent;
-          backdrop-filter: blur(10px);
+        .dashboard-grid {
+          grid-template-columns: 1fr;
         }
         
-        .filter-item:hover {
-          background: var(--primary-light);
-          color: var(--primary-dark);
-          transform: translateY(-2px);
+        .visitor-form {
+          grid-template-columns: 1fr;
         }
-        
-        .filter-item.active {
-          background: var(--primary-light);
-          color: var(--primary-dark);
-          border-color: var(--primary);
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      }
+      
+      /* Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-        
-        .date-filter {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          background: rgba(255, 255, 255, 0.9);
-          padding: 0.75rem 1.5rem;
-          border-radius: 12px;
-          backdrop-filter: blur(10px);
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        
-        .date-input {
-          padding: 0.5rem 1rem;
-          border: 2px solid var(--border);
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          transition: all 0.3s ease;
-        }
-        
-        .date-input:focus {
-          outline: none;
-          border-color: var(--primary);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Buttons */
-        .btn {
-          padding: 0.75rem 1.5rem;
-          border-radius: 12px;
-          border: none;
-          font-weight: 600;
-          cursor: pointer;
-          font-size: 14px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-        
-        .btn-primary {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-          color: white;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .btn-primary::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s;
-        }
-        
-        .btn-primary:hover::before {
-          left: 100%;
-        }
-        
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-        }
-        
-        .btn-outline {
-          background: rgba(255, 255, 255, 0.9);
-          border: 2px solid var(--border);
-          color: var(--secondary);
-        }
-        
-        .btn-outline:hover {
-          background: var(--gray);
-          border-color: var(--primary);
-          color: var(--primary-dark);
-        }
-        
-        /* Reservations Container */
-        .reservations-container {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
-          box-shadow: var(--card-shadow);
-          overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-        }
-        
-        .reservations-header {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-          gap: 2rem;
-          padding: 1.5rem 2rem;
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
-          border-bottom: 1px solid var(--border);
-          font-weight: 700;
-          color: var(--dark);
-          font-size: 14px;
-        }
-        
-        .reservation-item {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-          gap: 2rem;
-          padding: 1.5rem 2rem;
-          border-bottom: 1px solid var(--border);
-          align-items: center;
-          transition: all 0.3s ease;
-          background: rgba(255, 255, 255, 0.5);
-        }
-        
-        .reservation-item:hover {
-          background: rgba(59, 130, 246, 0.05);
-          transform: translateX(4px);
-        }
-        
-        .reservation-item:last-child {
-          border-bottom: none;
-        }
-        
-        .reservation-info {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-        
-        .reservation-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-          color: var(--primary-dark);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 20px;
-          flex-shrink: 0;
-        }
-        
-        .reservation-details {
-          flex: 1;
-        }
-        
-        .reservation-title {
-          font-weight: 700;
-          margin-bottom: 0.25rem;
-          color: var(--dark);
-          font-size: 16px;
-        }
-        
-        .reservation-meta {
-          font-size: 14px;
-          color: var(--secondary);
-          font-weight: 500;
-        }
-        
-        .reservation-actions {
-          display: flex;
-          gap: 0.5rem;
-        }
-        
-        .btn-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: none;
-          cursor: pointer;
-          background: rgba(255, 255, 255, 0.9);
-          color: var(--secondary);
-          transition: all 0.3s ease;
-          font-size: 14px;
-        }
-        
-        .btn-icon:hover {
-          transform: scale(1.1);
-        }
-        
-        .btn-edit:hover {
-          background: var(--primary-light);
-          color: var(--primary-dark);
-        }
-        
-        .btn-cancel:hover {
-          background: var(--danger-light);
-          color: var(--danger);
-        }
-        
-        /* Tags */
-        .tag {
-          display: inline-block;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .tag-upcoming {
-          background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-          color: var(--primary-dark);
-        }
-        
-        .tag-active {
-          background: linear-gradient(135deg, var(--success-light) 0%, #bbf7d0 100%);
-          color: var(--success);
-        }
-        
-        .tag-past {
-          background: linear-gradient(135deg, var(--gray) 0%, #e2e8f0 100%);
-          color: var(--secondary);
-        }
-        
-        .tag-cancelled {
-          background: linear-gradient(135deg, var(--danger-light) 0%, #fecaca 100%);
-          color: var(--danger);
-        }
-        
-        /* Responsive */
-        @media (max-width: 1200px) {
-          .reservations-header,
-          .reservation-item {
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-          }
-          
-          .reservations-header div:last-child,
-          .reservation-item > div:last-child {
-            display: none;
-          }
-        }
-        
-        @media (max-width: 992px) {
-          .reservations-header,
-          .reservation-item {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-          }
-          
-          .reservations-header {
-            display: none;
-          }
-          
-          .reservation-item {
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            box-shadow: var(--card-shadow);
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .page-header {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-          }
-          
-          .filters {
-            flex-direction: column;
-            align-items: stretch;
-          }
-          
-          .date-filter {
-            flex-direction: column;
-            gap: 0.5rem;
-          }
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .reservations-container {
-          animation: fadeIn 0.6s ease-out;
-        }
-      `}</style>
+      }
+      
+      .dashboard-card, .reservation-card, .parking-slot {
+        animation: fadeIn 0.4s ease-out;
+      }
+
+      /* Missing styles from InternDashboard.jsx */
+
+      .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 14px;
+        color: var(--dark);
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .filter-item {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        color: var(--secondary);
+        user-select: none;
+      }
+
+      .filter-item:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
+      .filter-item.active {
+        background: var(--primary);
+        color: white;
+        font-weight: 600;
+      }
+
+      .date-filter {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+      }
+
+      .date-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+      }
+
+      .date-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+
+      .reservation-item {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1fr 0.8fr 1fr 1fr;
+        gap: 1rem;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--light);
+        border-radius: 12px;
+        transition: background-color 0.3s ease;
+        margin-bottom: 1rem;
+      }
+
+      .reservation-item:hover {
+        background: #f1f5f9;
+      }
+
+      .reservation-info {
+        display: flex;
+        align-items: center;
+        flex: 1;
+      }
+
+      .reservation-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+      }
+
+      .reservation-details {
+        flex: 1;
+      }
+
+      .reservation-title {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+        font-size: 16px;
+      }
+
+      .reservation-meta {
+        font-size: 14px;
+        color: var(--secondary);
+        font-weight: 500;
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .reservation-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        background: var(--light);
+        color: var(--secondary);
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+
+      .btn-icon:hover {
+        transform: scale(1.05);
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
+      .btn-edit {
+        color: var(--secondary);
+      }
+
+      .btn-edit:hover {
+        background: var(--border);
+      }
+
+      .btn-cancel {
+        color: var(--danger);
+      }
+
+      .btn-cancel:hover {
+        background: var(--danger-light);
+      }
+
+      .tag {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 12px;
+      }
+
+      .tag-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+
+      .tag-upcoming {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+
+      .tag-past {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--secondary);
+      }
+
+      .tag-cancelled {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+    `}</style>
       
       {/* Page Header */}
       <div className="page-header">
         <div>
-          <h2 className="page-title">Your Reservations</h2>
-          <p className="page-subtitle">View and manage all your seat reservations</p>
+          <h2 className="page-title">Visitor Parking Reservations</h2>
+          <p className="page-subtitle">Manage parking reservations for your visitors</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           {onBack && (
@@ -516,7 +731,7 @@ const SeatReserve = ({ onBack, user }) => {
             </button>
           )}
           <button className="btn btn-primary">
-            <i className="fas fa-plus"></i> New Reservation
+            <i className="fas fa-plus"></i> New Parking Reservation
           </button>
         </div>
       </div>
@@ -556,7 +771,8 @@ const SeatReserve = ({ onBack, user }) => {
       {/* Reservations List */}
       <div className="reservations-container">
         <div className="reservations-header">
-          <div>Seat & Location</div>
+          <div>Parking Slot & Location</div>
+          <div>Visitor Details</div>
           <div>Date & Time</div>
           <div>Status</div>
           <div>Reservation ID</div>
@@ -567,12 +783,16 @@ const SeatReserve = ({ onBack, user }) => {
           <div key={reservation.id} className="reservation-item">
             <div className="reservation-info">
               <div className="reservation-icon">
-                <i className="fas fa-chair"></i>
+                <i className="fas fa-car"></i>
               </div>
               <div className="reservation-details">
-                <div className="reservation-title">{reservation.seat}</div>
+                <div className="reservation-title">{reservation.slot}</div>
                 <div className="reservation-meta">{reservation.location}</div>
               </div>
+            </div>
+            <div>
+              <div className="reservation-title">{reservation.visitorName}</div>
+              <div className="reservation-meta">{reservation.licensePlate}</div>
             </div>
             <div>
               <div className="reservation-title">{reservation.date}</div>
@@ -590,4 +810,4 @@ const SeatReserve = ({ onBack, user }) => {
   );
 };
 
-export default SeatReserve;
+export default ParkingReserve;

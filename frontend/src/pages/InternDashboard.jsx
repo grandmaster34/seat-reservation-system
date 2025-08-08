@@ -1,55 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useNavigation } from '../context/NavigationContext';
-import InternSidebar from '../components/InternSidebar';
-import InternHeader from '../components/InternHeader';
-import SeatReserve from './InternDashboard-1';
-import SeatMap from './InternDashboard-2';
-import ReservationHistory from './InternDashboard-3';
-import UserSettings from './InternDashboard-4';
+import InternSidebar from '../components/InternSidebar'; // Keep original name
+import InternHeader from '../components/InternHeader'; // Keep original name
+import SlotReserve from './InternDashboard-1'; // Keep original path but rename component
+import ParkingMap from './InternDashboard-2'; // Keep original path but rename component
+import ReservationHistory from './InternDashboard-3'; // Keep original path
+import UserSettings from './InternDashboard-4'; // Keep original path
 
-const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
+const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentPage, navigateTo, goToDashboard } = useNavigation();
-  const [selectedSeat, setSelectedSeat] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [reservations, setReservations] = useState([
     { 
       id: 1, 
-      title: "Desk B3 - Main Area", 
+      title: "Parking Slot P-12 - Main Lot", 
       date: "Today, 15 Aug", 
-      time: "Full day", 
+      time: "9:00 AM - 5:00 PM", 
       status: "active", 
-      type: "active" 
+      type: "active",
+      visitorName: "John Smith"
     },
     { 
       id: 2, 
-      title: "Desk A1 - Window Side", 
+      title: "Parking Slot P-07 - VIP Area", 
       date: "Wed, 17 Aug", 
-      time: "Full day", 
+      time: "10:00 AM - 2:00 PM", 
       status: "upcoming", 
-      type: "upcoming" 
+      type: "upcoming",
+      visitorName: "Sarah Johnson"
     },
     { 
       id: 3, 
-      title: "Desk C2 - Quiet Zone", 
+      title: "Parking Slot P-23 - East Wing", 
       date: "Fri, 19 Aug", 
       time: "Full day", 
       status: "upcoming", 
-      type: "upcoming" 
+      type: "upcoming",
+      visitorName: "Michael Brown"
     },
     { 
       id: 4, 
-      title: "Desk A2 - Main Area", 
+      title: "Parking Slot P-15 - North Lot", 
       date: "Mon, 14 Aug", 
       time: "Full day", 
       status: "past", 
-      type: "past" 
+      type: "past",
+      visitorName: "Emily Davis"
     }
   ]);
   
   const [reservationDate, setReservationDate] = useState('');
   
+
+
   useEffect(() => {
     // Set today as default date
     const today = new Date().toISOString().split('T')[0];
@@ -62,12 +68,12 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
     document.getElementById('reservation-date')?.setAttribute('min', minDate);
   }, []);
 
-  const handleSelectSeat = (seatId) => {
-    setSelectedSeat(seatId);
+  const handleSelectSlot = (slotId) => {
+    setSelectedSlot(slotId);
   };
 
   const handleCancelReservation = (id) => {
-    if (window.confirm("Are you sure you want to cancel this reservation?")) {
+    if (window.confirm("Are you sure you want to cancel this parking reservation?")) {
       setReservations(reservations.map(res => 
         res.id === id ? { ...res, status: 'cancelled', type: 'past' } : res
       ));
@@ -82,29 +88,45 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
     goToDashboard();
   };
 
-  const seats = [
-    { id: 'A1', status: 'available' },
-    { id: 'A2', status: 'available' },
-    { id: 'A3', status: 'occupied' },
-    { id: 'A4', status: 'occupied' },
-    { id: 'B1', status: 'available' },
-    { id: 'B2', status: 'occupied' },
-    { id: 'B3', status: 'available' },
-    { id: 'B4', status: 'occupied' },
-    { id: 'C1', status: 'occupied' },
-    { id: 'C2', status: 'available' },
-    { id: 'C3', status: 'occupied' },
-    { id: 'C4', status: 'available' },
+  const parkingSlots = [
+    { id: 'P-01', status: 'available' },
+    { id: 'P-02', status: 'available' },
+    { id: 'P-03', status: 'occupied' },
+    { id: 'P-04', status: 'occupied' },
+    { id: 'P-05', status: 'available' },
+    { id: 'P-06', status: 'occupied' },
+    { id: 'P-07', status: 'available' },
+    { id: 'P-08', status: 'occupied' },
+    { id: 'P-09', status: 'occupied' },
+    { id: 'P-10', status: 'available' },
+    { id: 'P-11', status: 'occupied' },
+    { id: 'P-12', status: 'available' },
+    { id: 'P-13', status: 'available' },
+    { id: 'P-14', status: 'occupied' },
+    { id: 'P-15', status: 'available' },
+    { id: 'P-16', status: 'occupied' },
+    { id: 'P-17', status: 'available' },
+    { id: 'P-18', status: 'occupied' },
+    { id: 'P-19', status: 'available' },
+    { id: 'P-20', status: 'occupied' },
+    { id: 'P-21', status: 'available' },
+    { id: 'P-22', status: 'occupied' },
+    { id: 'P-23', status: 'available' },
+    { id: 'P-24', status: 'occupied' },
+    { id: 'P-25', status: 'available' },
+    { id: 'P-26', status: 'available' },
+    { id: 'P-27', status: 'available' },
+    { id: 'P-28', status: 'available' },
   ];
 
-  // If current page is reservations, render the SeatReserve component
+  // If current page is reservations, render the SlotReserve component
   if (currentPage === 'reservations') {
-    return <SeatReserve onBack={handleBackToDashboard} user={user} />;
+    return <SlotReserve onBack={handleBackToDashboard} user={user} />;
   }
 
-  // If current page is seatmap, render the SeatMap component
-  if (currentPage === 'seatmap') {
-    return <SeatMap onBack={handleBackToDashboard} user={user} />;
+  // If current page is parkingmap, render the ParkingMap component
+  if (currentPage === 'parkingmap') {
+    return <ParkingMap onBack={handleBackToDashboard} user={user} />;
   }
 
   // If current page is history, render the ReservationHistory component
@@ -120,10 +142,11 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
   return (
     <div className="dashboard">
       <style jsx>{`
+        /* Global Styles */
         :root {
-          --primary: #3b82f6;
-          --primary-dark: #2563eb;
-          --primary-light: #dbeafe;
+          --primary: #4361ee;
+          --primary-dark: #3a56e0;
+          --primary-light: #e6eaf8;
           --secondary: #64748b;
           --success: #10b981;
           --success-light: #d1fae5;
@@ -135,240 +158,59 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
           --dark: #1e293b;
           --gray: #e2e8f0;
           --border: #e2e8f0;
-          --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-          --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
         
         * {
+          box-sizing: border-box;
           margin: 0;
           padding: 0;
-          box-sizing: border-box;
         }
         
-        .dashboard {
+        body {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background-color: #f5f7fa;
+          color: var(--dark);
+          line-height: 1.5;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard {
+          display: flex;
           min-height: 100vh;
-          display: flex;
-          position: relative;
+          background-color: #f5f7fa;
         }
         
-        .dashboard::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-          pointer-events: none;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-          width: 280px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
-          padding: 2rem 0;
-          display: flex;
-          flex-direction: column;
-          position: relative;
-          z-index: 10;
-          border-right: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .logo {
-          display: flex;
-          align-items: center;
-          padding: 0 2rem 2rem;
-          border-bottom: 1px solid var(--border);
-          margin-bottom: 2rem;
-        }
-        
-        .logo-icon {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-          color: white;
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 24px;
-          margin-right: 1rem;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        
-        .logo-text {
-          font-size: 24px;
-          font-weight: 800;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        
-        .nav-item {
-          display: flex;
-          align-items: center;
-          padding: 1rem 2rem;
-          color: var(--secondary);
-          text-decoration: none;
-          margin: 0.25rem 1rem;
-          border-radius: 12px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          font-weight: 500;
-          position: relative;
-          overflow: hidden;
-          cursor: pointer;
-          border: none;
-          background: none;
-          width: calc(100% - 2rem);
-          text-align: left;
-        }
-        
-        .nav-item::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          width: 0;
-          background: linear-gradient(90deg, var(--primary-light) 0%, transparent 100%);
-          transition: width 0.3s ease;
-        }
-        
-        .nav-item:hover::before {
-          width: 100%;
-        }
-        
-        .nav-item:hover, .nav-item.active {
-          background: var(--primary-light);
-          color: var(--primary-dark);
-          transform: translateX(4px);
-        }
-        
-        .nav-item.active {
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        }
-        
-        .nav-item i {
-          margin-right: 1rem;
-          font-size: 20px;
-          z-index: 1;
-        }
-        
-        .nav-text {
-          z-index: 1;
-        }
-        
-        /* Main Content */
         .main-content {
           flex: 1;
-          padding: 3rem;
-          overflow-y: auto;
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(20px);
-          position: relative;
-          z-index: 1;
+          padding: 20px;
+          padding-left: 100px; /* Reduced gap for sidebar width */
+          transition: var(--transition);
+          padding-right: 50px;
         }
         
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 3rem;
-          background: rgba(255, 255, 255, 0.95);
-          padding: 2rem;
-          border-radius: 20px;
-          box-shadow: var(--card-shadow);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-        }
-        
-        .header-title {
-          font-size: 32px;
-          font-weight: 800;
-          background: linear-gradient(135deg, var(--dark) 0%, var(--primary-dark) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        
-        .user-profile {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          background: rgba(255, 255, 255, 0.8);
-          padding: 1rem 1.5rem;
-          border-radius: 50px;
-          box-shadow: var(--card-shadow);
-        }
-        
-        .user-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 18px;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        
-        .user-info {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .user-name {
-          font-weight: 700;
-          font-size: 16px;
-          color: var(--dark);
-        }
-        
-        .user-role {
-          font-size: 14px;
-          color: var(--secondary);
-          font-weight: 500;
-        }
-        
-        /* Cards */
+        /* Dashboard Cards */
         .dashboard-cards {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: 2rem;
-          margin-bottom: 3rem;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
         }
         
         .card {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
-          padding: 2rem;
+          background: white;
+          border-radius: 16px;
+          padding: 24px;
           box-shadow: var(--card-shadow);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
+          transition: var(--transition);
           position: relative;
           overflow: hidden;
         }
         
-        .card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
-        }
-        
         .card:hover {
-          transform: translateY(-8px);
+          transform: translateY(-5px);
           box-shadow: var(--card-shadow-hover);
         }
         
@@ -376,199 +218,150 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: 16px;
         }
         
         .card-title {
-          font-size: 20px;
+          font-size: 1rem;
+          font-weight: 600;
+          color: var(--secondary);
+        }
+        
+        .card-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.2rem;
+        }
+        
+        .bg-blue { background-color: var(--primary-light); color: var(--primary); }
+        .bg-green { background-color: var(--success-light); color: var(--success); }
+        .bg-orange { background-color: var(--warning-light); color: var(--warning); }
+        
+        .card-value {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 8px;
+          color: var(--dark);
+        }
+        
+        .card-text {
+          font-size: 0.9rem;
+          color: var(--secondary);
+        }
+        
+        /* Panel Styles */
+        .reservation-section {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        
+        @media (min-width: 1200px) {
+          .reservation-section {
+            grid-template-columns: 2fr 1fr;
+          }
+        }
+        
+        .panel {
+          background: white;
+          border-radius: 16px;
+          box-shadow: var(--card-shadow);
+          overflow: hidden;
+          transition: var(--transition);
+        }
+        
+        .panel:hover {
+          box-shadow: var(--card-shadow-hover);
+        }
+        
+        .panel-header {
+          padding: 20px 24px;
+          border-bottom: 1px solid var(--border);
+        }
+        
+        .panel-title {
+          font-size: 1.25rem;
           font-weight: 700;
           color: var(--dark);
         }
         
-        .card-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 28px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .bg-blue {
-          background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-          color: var(--primary-dark);
-        }
-        
-        .bg-green {
-          background: linear-gradient(135deg, var(--success-light) 0%, #a7f3d0 100%);
-          color: var(--success);
-        }
-        
-        .bg-orange {
-          background: linear-gradient(135deg, var(--warning-light) 0%, #fde68a 100%);
-          color: var(--warning);
-        }
-        
-        .card-value {
-          font-size: 36px;
-          font-weight: 800;
-          margin-bottom: 0.5rem;
-          background: linear-gradient(135deg, var(--dark) 0%, var(--primary-dark) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: fadeInUp 0.6s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .card-text {
-          font-size: 16px;
-          color: var(--secondary);
-          font-weight: 500;
-        }
-        
-        /* Reservation Section */
-        .reservation-section {
-          display: grid;
-          grid-template-columns: 1.5fr 1fr;
-          gap: 2rem;
-          margin-top: 2rem;
-        }
-        
-        .panel {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
-          box-shadow: var(--card-shadow);
-          overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-          position: relative;
-        }
-        
-        .panel::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
-          z-index: 1;
-        }
-        
-        .panel-header {
-          padding: 2rem;
-          border-bottom: 1px solid var(--border);
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
-        }
-        
-        .panel-title {
-          font-size: 24px;
-          font-weight: 800;
-          color: var(--dark);
-        }
-        
         .panel-body {
-          padding: 2rem;
+          padding: 24px;
         }
         
+        /* Form Elements */
         .date-selector {
           display: flex;
-          gap: 1rem;
-          margin-bottom: 2rem;
+          gap: 12px;
+          margin-bottom: 24px;
         }
         
-        .date-input {
+        .date-input, input[type="text"], input[type="date"] {
           flex: 1;
-          padding: 1rem 1.5rem;
-          border: 2px solid var(--border);
+          padding: 12px 16px;
+          border: 1px solid var(--border);
           border-radius: 12px;
-          font-size: 16px;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          background: rgba(255, 255, 255, 0.9);
+          font-size: 0.9rem;
+          transition: var(--transition);
         }
         
-        .date-input:focus {
+        .date-input:focus, input[type="text"]:focus, input[type="date"]:focus {
           outline: none;
           border-color: var(--primary);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
         
+        .visitor-info {
+          margin-bottom: 24px;
+        }
+        
+        /* Buttons */
         .btn {
-          padding: 1rem 2rem;
+          padding: 12px 20px;
           border-radius: 12px;
-          border: none;
           font-weight: 600;
           cursor: pointer;
-          font-size: 16px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
+          transition: var(--transition);
+          display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
+          justify-content: center;
+          gap: 8px;
+          border: none;
+          font-size: 0.9rem;
         }
         
         .btn-primary {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+          background: var(--primary);
           color: white;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .btn-primary::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s;
-        }
-        
-        .btn-primary:hover::before {
-          left: 100%;
         }
         
         .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+          background: var(--primary-dark);
         }
         
         .btn-outline {
-          background: rgba(255, 255, 255, 0.9);
-          border: 2px solid var(--border);
+          background: transparent;
+          border: 1px solid var(--border);
           color: var(--secondary);
         }
         
         .btn-outline:hover {
-          background: var(--gray);
-          border-color: var(--primary);
-          color: var(--primary-dark);
+          background: var(--light);
         }
         
-        /* Seat Map */
-        .office-map {
+        /* Parking Lot Grid */
+        .parking-lot {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
-          margin-top: 2rem;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 16px;
+          margin-top: 16px;
         }
         
-        .seat {
+        .slot {
           height: 120px;
           border-radius: 16px;
           display: flex;
@@ -578,62 +371,45 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
           background: rgba(255, 255, 255, 0.9);
           border: 2px solid var(--border);
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: var(--transition);
           position: relative;
           overflow: hidden;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
-        .seat::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
+        .slot:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
         }
         
-        .seat:hover::before {
-          opacity: 1;
-        }
-        
-        .seat.available {
+        .slot.available {
           background: linear-gradient(135deg, var(--success-light) 0%, #bbf7d0 100%);
           border-color: var(--success);
         }
         
-        .seat.available:hover {
-          transform: translateY(-4px) scale(1.02);
-          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-        }
-        
-        .seat.selected {
+        .slot.selected {
           background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
           border-color: var(--primary);
-          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
         }
         
-        .seat.occupied {
+        .slot.occupied {
           background: linear-gradient(135deg, var(--danger-light) 0%, #fecaca 100%);
           border-color: var(--danger);
           cursor: not-allowed;
-          opacity: 0.7;
+          opacity: 0.8;
         }
         
-        .seat-number {
+        .slot-number {
           font-weight: 800;
           font-size: 20px;
-          margin-bottom: 0.5rem;
+          margin-bottom: 8px;
           z-index: 1;
         }
         
-        .seat-status {
+        .slot-status {
           font-size: 12px;
-          padding: 0.25rem 0.75rem;
+          padding: 4px 12px;
           border-radius: 20px;
           font-weight: 600;
           z-index: 1;
@@ -651,209 +427,178 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
         
         /* Reservations List */
         .reservations {
-          max-height: 600px;
-          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
         }
         
         .reservation-item {
           display: flex;
-          padding: 1.5rem;
-          border-bottom: 1px solid var(--border);
           align-items: center;
-          transition: all 0.3s ease;
+          padding: 16px;
+          background: var(--light);
           border-radius: 12px;
-          margin-bottom: 0.5rem;
-          background: rgba(255, 255, 255, 0.5);
-          backdrop-filter: blur(5px);
+          transition: var(--transition);
+          position: relative;
         }
         
         .reservation-item:hover {
-          background: rgba(59, 130, 246, 0.05);
-          transform: translateX(4px);
-        }
-        
-        .reservation-item:last-child {
-          border-bottom: none;
+          background: #f1f5f9;
         }
         
         .reservation-icon {
           width: 48px;
           height: 48px;
           border-radius: 12px;
-          background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-          color: var(--primary-dark);
+          background: var(--primary-light);
+          color: var(--primary);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-right: 1rem;
+          font-size: 1.2rem;
+          margin-right: 16px;
           flex-shrink: 0;
-          font-size: 20px;
         }
         
         .reservation-details {
           flex: 1;
+          min-width: 0;
         }
         
         .reservation-title {
-          font-weight: 700;
-          margin-bottom: 0.5rem;
-          color: var(--dark);
-          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 4px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         
         .reservation-meta {
           display: flex;
-          font-size: 14px;
+          gap: 16px;
+          font-size: 0.85rem;
           color: var(--secondary);
-          gap: 1rem;
+          margin-bottom: 4px;
         }
         
         .reservation-meta span {
           display: flex;
           align-items: center;
-          font-weight: 500;
+          gap: 4px;
         }
         
-        .reservation-meta i {
-          margin-right: 0.5rem;
+        .visitor-name {
+          font-size: 0.85rem;
+          color: var(--secondary);
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        
+        .tag {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          margin-left: 12px;
+        }
+        
+        .tag-active {
+          background: rgba(16, 185, 129, 0.1);
+          color: var(--success);
+        }
+        
+        .tag-upcoming {
+          background: rgba(245, 158, 11, 0.1);
+          color: var(--warning);
+        }
+        
+        .tag-past {
+          background: rgba(100, 116, 139, 0.1);
+          color: var(--secondary);
         }
         
         .reservation-actions {
           display: flex;
-          gap: 0.5rem;
+          gap: 8px;
+          margin-left: 12px;
         }
         
         .btn-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
+          background: transparent;
           border: none;
           cursor: pointer;
-          background: rgba(255, 255, 255, 0.9);
-          color: var(--secondary);
-          transition: all 0.3s ease;
-          font-size: 16px;
+          transition: var(--transition);
         }
         
-        .btn-icon:hover {
-          transform: scale(1.1);
+        .btn-edit {
+          color: var(--secondary);
         }
         
         .btn-edit:hover {
-          background: var(--primary-light);
-          color: var(--primary-dark);
+          background: var(--gray);
+        }
+        
+        .btn-cancel {
+          color: var(--danger);
         }
         
         .btn-cancel:hover {
           background: var(--danger-light);
-          color: var(--danger);
         }
         
-        .tag {
-          display: inline-block;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .tag-upcoming {
-          background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-          color: var(--primary-dark);
-        }
-        
-        .tag-active {
-          background: linear-gradient(135deg, var(--success-light) 0%, #bbf7d0 100%);
-          color: var(--success);
-        }
-        
-        .tag-past {
-          background: linear-gradient(135deg, var(--gray) 0%, #e2e8f0 100%);
-          color: var(--secondary);
-        }
-        
-        /* Custom scrollbar */
-        .reservations::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .reservations::-webkit-scrollbar-track {
-          background: var(--gray);
-          border-radius: 10px;
-        }
-        
-        .reservations::-webkit-scrollbar-thumb {
-          background: var(--primary);
-          border-radius: 10px;
-        }
-        
-        .reservations::-webkit-scrollbar-thumb:hover {
-          background: var(--primary-dark);
-        }
-        
-        /* Responsive */
-        @media (max-width: 1200px) {
-          .reservation-section {
-            grid-template-columns: 1fr;
-          }
-        }
-        
+        /* Responsive Adjustments */
         @media (max-width: 992px) {
-          .sidebar {
-            width: 80px;
-          }
-          
-          .logo-text, .nav-text {
-            display: none;
-          }
-          
-          .logo {
-            justify-content: center;
-            padding: 0 0 2rem 0;
-          }
-          
-          .nav-item {
-            justify-content: center;
-            padding: 1.5rem 0;
-          }
-          
-          .nav-item i {
-            margin-right: 0;
-          }
-          
           .main-content {
-            padding: 2rem;
+            padding-left: 80px;
           }
         }
         
         @media (max-width: 768px) {
-          .dashboard-cards {
-            grid-template-columns: 1fr;
-          }
-          
-          .office-map {
-            grid-template-columns: repeat(2, 1fr);
-          }
-          
-          .user-info {
-            display: none;
-          }
-          
-          .header {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
+          .main-content {
+            padding: 15px;
+            padding-left: 70px;
           }
           
           .date-selector {
             flex-direction: column;
           }
+          
+          .reservation-item {
+            flex-wrap: wrap;
+          }
+          
+          .tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+          }
+          
+          .reservation-actions {
+            margin-left: auto;
+            margin-top: 10px;
+          }
         }
+        
+        /* Animation Enhancements */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card, .panel {
+          animation: fadeIn 0.4s ease-out;
+        }
+        
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .panel:nth-child(2) { animation-delay: 0.3s; }
       `}</style>
       
       {/* Sidebar */}
@@ -861,19 +606,19 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
       
       {/* Main Content */}
       <main className="main-content">
-        <InternHeader title="Seat Reservation Dashboard" user={user} />
+        <InternHeader title="Visitor Parking Reservation" user={user} />
         
         {/* Dashboard Cards */}
         <div className="dashboard-cards">
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">Available Seats</h3>
+              <h3 className="card-title">Available Slots</h3>
               <div className="card-icon bg-blue">
-                <i className="fas fa-chair"></i>
+                <i className="fas fa-parking"></i>
               </div>
             </div>
-            <div className="card-value">24</div>
-            <div className="card-text">Seats available today</div>
+            <div className="card-value">18</div>
+            <div className="card-text">Slots available today</div>
           </div>
           
           <div className="card">
@@ -889,22 +634,22 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
           
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">Office Capacity</h3>
+              <h3 className="card-title">Parking Capacity</h3>
               <div className="card-icon bg-orange">
-                <i className="fas fa-building"></i>
+                <i className="fas fa-car"></i>
               </div>
             </div>
-            <div className="card-value">68%</div>
-            <div className="card-text">Current occupancy rate</div>
+            <div className="card-value">72%</div>
+            <div className="card-text">Current utilization rate</div>
           </div>
         </div>
         
         {/* Reservation Section */}
         <div className="reservation-section">
-          {/* Seat Booking Panel */}
+          {/* Parking Booking Panel */}
           <div className="panel">
             <div className="panel-header">
-              <h2 className="panel-title">Book a Seat</h2>
+              <h2 className="panel-title">Reserve a Parking Slot</h2>
             </div>
             <div className="panel-body">
               <div className="date-selector">
@@ -920,19 +665,40 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
                 </button>
               </div>
               
-              <h3 style={{marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700'}}>Seat Map - Main Office Area</h3>
-              <p className="card-text" style={{marginBottom: '1.5rem'}}>Select an available seat for your reservation</p>
+              <div className="visitor-info" style={{marginBottom: '1.5rem'}}>
+                <h3 style={{marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700'}}>
+                  Visitor Information
+                </h3>
+                <input
+                  type="text"
+                  className="date-input"
+                  placeholder="Visitor's Full Name"
+                  style={{marginBottom: '1rem'}}
+                />
+                <input
+                  type="text"
+                  className="date-input"
+                  placeholder="Vehicle License Plate"
+                />
+              </div>
               
-              <div className="office-map">
-                {seats.map(seat => (
+              <h3 style={{marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700'}}>
+                Parking Lot - Main Area
+              </h3>
+              <p className="card-text" style={{marginBottom: '1.5rem'}}>
+                Select an available slot for your visitor
+              </p>
+              
+              <div className="parking-lot">
+                {parkingSlots.map((slot) => (
                   <div 
-                    key={seat.id}
-                    className={`seat ${seat.status} ${selectedSeat === seat.id ? 'selected' : ''}`}
-                    onClick={() => seat.status === 'available' && handleSelectSeat(seat.id)}
+                    key={slot.id}
+                    className={`slot ${slot.status} ${selectedSlot === slot.id ? 'selected' : ''}`}
+                    onClick={() => slot.status === 'available' && handleSelectSlot(slot.id)}
                   >
-                    <div className="seat-number">{seat.id}</div>
-                    <div className={`seat-status status-${seat.status}`}>
-                      {seat.status === 'available' ? 'Available' : 'Occupied'}
+                    <div className="slot-number">{slot.id}</div>
+                    <div className={`slot-status status-${slot.status}`}>
+                      {slot.status === 'available' ? 'Available' : 'Occupied'}
                     </div>
                   </div>
                 ))}
@@ -945,7 +711,7 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
                 <button 
                   className="btn btn-outline" 
                   style={{flex: 1}}
-                  onClick={() => setSelectedSeat(null)}
+                  onClick={() => setSelectedSlot(null)}
                 >
                   Clear Selection
                 </button>
@@ -964,7 +730,7 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
                   <div key={reservation.id} className="reservation-item">
                     <div className="reservation-icon">
                       <i className={
-                        reservation.status === 'active' ? 'fas fa-calendar-day' : 
+                        reservation.status === 'active' ? 'fas fa-car' : 
                         reservation.status === 'cancelled' ? 'fas fa-times-circle' : 
                         'fas fa-calendar-alt'
                       }></i>
@@ -974,6 +740,9 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
                       <div className="reservation-meta">
                         <span><i className="far fa-calendar"></i> {reservation.date}</span>
                         <span><i className="far fa-clock"></i> {reservation.time}</span>
+                      </div>
+                      <div className="visitor-name" style={{marginTop: '0.5rem', fontSize: '14px'}}>
+                        <i className="fas fa-user"></i> {reservation.visitorName}
                       </div>
                     </div>
                     <div className={`tag tag-${reservation.type}`}>
@@ -1003,4 +772,4 @@ const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
   );
 };
 
-export default InternDashboard;
+export default EmployeeDashboard;

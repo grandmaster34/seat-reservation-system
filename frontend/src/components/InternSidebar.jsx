@@ -139,7 +139,7 @@ const InternSidebar = ({ user }) => {
         <div className="logo-icon">
           <i className="fas fa-chair"></i>
         </div>
-        <div className="logo-text">SeatReserve</div>
+        <div className="logo-text">Reservation</div>
       </div>
       
       <button 

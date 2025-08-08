@@ -2,80 +2,84 @@ import React, { useState } from 'react';
 import { useNavigation } from '../context/NavigationContext';
 import InternLayout from '../components/InternLayout';
 
-const SeatMap = ({ onBack, user }) => {
-  const [selectedArea, setSelectedArea] = useState('main');
-  const [selectedSeat, setSelectedSeat] = useState(null);
+const ParkingMap = ({ onBack, user }) => {
+  const [selectedZone, setSelectedZone] = useState('main');
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [reservationDate, setReservationDate] = useState('');
   const [reservationTime, setReservationTime] = useState('full-day');
+  const [visitorName, setVisitorName] = useState('');
+  const [licensePlate, setLicensePlate] = useState('');
   
-  // Mock seat data for different office areas
-  const officeLayout = {
+  // Mock parking slot data for different zones
+  const parkingLayout = {
     main: [
-      { id: 'A1', status: 'available', location: 'Main Area - Row A' },
-      { id: 'A2', status: 'occupied', location: 'Main Area - Row A' },
-      { id: 'A3', status: 'available', location: 'Main Area - Row A' },
-      { id: 'A4', status: 'occupied', location: 'Main Area - Row A' },
-      { id: 'B1', status: 'available', location: 'Main Area - Row B' },
-      { id: 'B2', status: 'occupied', location: 'Main Area - Row B' },
-      { id: 'B3', status: 'available', location: 'Main Area - Row B' },
-      { id: 'B4', status: 'available', location: 'Main Area - Row B' },
-      { id: 'C1', status: 'occupied', location: 'Main Area - Row C' },
-      { id: 'C2', status: 'occupied', location: 'Main Area - Row C' },
-      { id: 'C3', status: 'available', location: 'Main Area - Row C' },
-      { id: 'C4', status: 'available', location: 'Main Area - Row C' },
+      { id: 'P-01', status: 'available', location: 'Main Lot - Row A' },
+      { id: 'P-02', status: 'occupied', location: 'Main Lot - Row A' },
+      { id: 'P-03', status: 'available', location: 'Main Lot - Row A' },
+      { id: 'P-04', status: 'occupied', location: 'Main Lot - Row A' },
+      { id: 'P-05', status: 'available', location: 'Main Lot - Row B' },
+      { id: 'P-06', status: 'occupied', location: 'Main Lot - Row B' },
+      { id: 'P-07', status: 'available', location: 'Main Lot - Row B' },
+      { id: 'P-08', status: 'available', location: 'Main Lot - Row B' },
+      { id: 'P-09', status: 'occupied', location: 'Main Lot - Row C' },
+      { id: 'P-10', status: 'occupied', location: 'Main Lot - Row C' },
+      { id: 'P-11', status: 'available', location: 'Main Lot - Row C' },
+      { id: 'P-12', status: 'available', location: 'Main Lot - Row C' },
     ],
-    window: [
-      { id: 'W1', status: 'available', location: 'Window Side - Row 1' },
-      { id: 'W2', status: 'occupied', location: 'Window Side - Row 1' },
-      { id: 'W3', status: 'occupied', location: 'Window Side - Row 1' },
-      { id: 'W4', status: 'available', location: 'Window Side - Row 2' },
-      { id: 'W5', status: 'available', location: 'Window Side - Row 2' },
-      { id: 'W6', status: 'occupied', location: 'Window Side - Row 2' },
+    vip: [
+      { id: 'VIP-01', status: 'available', location: 'VIP Area - Front' },
+      { id: 'VIP-02', status: 'occupied', location: 'VIP Area - Front' },
+      { id: 'VIP-03', status: 'occupied', location: 'VIP Area - Front' },
+      { id: 'VIP-04', status: 'available', location: 'VIP Area - Rear' },
+      { id: 'VIP-05', status: 'available', location: 'VIP Area - Rear' },
+      { id: 'VIP-06', status: 'occupied', location: 'VIP Area - Rear' },
     ],
-    quiet: [
-      { id: 'Q1', status: 'available', location: 'Quiet Zone - Row 1' },
-      { id: 'Q2', status: 'available', location: 'Quiet Zone - Row 1' },
-      { id: 'Q3', status: 'occupied', location: 'Quiet Zone - Row 2' },
-      { id: 'Q4', status: 'available', location: 'Quiet Zone - Row 2' },
+    covered: [
+      { id: 'C-01', status: 'available', location: 'Covered Parking - Level 1' },
+      { id: 'C-02', status: 'available', location: 'Covered Parking - Level 1' },
+      { id: 'C-03', status: 'occupied', location: 'Covered Parking - Level 1' },
+      { id: 'C-04', status: 'available', location: 'Covered Parking - Level 1' },
     ],
-    collaboration: [
-      { id: 'C1', status: 'occupied', location: 'Collaboration Zone - Table 1' },
-      { id: 'C2', status: 'occupied', location: 'Collaboration Zone - Table 1' },
-      { id: 'C3', status: 'occupied', location: 'Collaboration Zone - Table 2' },
-      { id: 'C4', status: 'available', location: 'Collaboration Zone - Table 2' },
+    handicap: [
+      { id: 'H-01', status: 'occupied', location: 'Accessible Parking - Near Elevator' },
+      { id: 'H-02', status: 'occupied', location: 'Accessible Parking - Near Elevator' },
+      { id: 'H-03', status: 'occupied', location: 'Accessible Parking - Ramp Access' },
+      { id: 'H-04', status: 'available', location: 'Accessible Parking - Ramp Access' },
     ]
   };
 
-  const handleSeatClick = (seat) => {
-    if (seat.status === 'available') {
-      setSelectedSeat(seat);
+  const handleSlotClick = (slot) => {
+    if (slot.status === 'available') {
+      setSelectedSlot(slot);
       setShowReservationModal(true);
     }
   };
 
   const handleReservation = () => {
-    if (selectedSeat && reservationDate) {
-      alert(`Reservation confirmed for seat ${selectedSeat.id} on ${reservationDate}`);
+    if (selectedSlot && reservationDate && visitorName && licensePlate) {
+      alert(`Parking reservation confirmed for ${visitorName} at slot ${selectedSlot.id} on ${reservationDate}`);
       setShowReservationModal(false);
-      setSelectedSeat(null);
+      setSelectedSlot(null);
       setReservationDate('');
       setReservationTime('full-day');
+      setVisitorName('');
+      setLicensePlate('');
     }
   };
 
-  const getAreaStats = (area) => {
-    const seats = officeLayout[area];
-    const total = seats.length;
-    const available = seats.filter(s => s.status === 'available').length;
+  const getZoneStats = (zone) => {
+    const slots = parkingLayout[zone];
+    const total = slots.length;
+    const available = slots.filter(s => s.status === 'available').length;
     const occupied = total - available;
     return { total, available, occupied };
   };
 
-  const stats = getAreaStats(selectedArea);
+  const stats = getZoneStats(selectedZone);
 
   return (
-    <InternLayout title="Office Seat Map" user={user}>
+    <InternLayout title="Visitor Parking Map" user={user}>
       <style>{`
         /* Area Selector */
         .area-selector {
@@ -149,8 +153,8 @@ const SeatMap = ({ onBack, user }) => {
           letter-spacing: 0.5px;
         }
         
-        /* Office Map Container */
-        .office-map-container {
+        /* Parking Map Container */
+        .parking-map-container {
           background: rgba(255, 255, 255, 0.95);
           border-radius: 20px;
           box-shadow: var(--card-shadow);
@@ -205,14 +209,18 @@ const SeatMap = ({ onBack, user }) => {
           background: var(--primary);
         }
         
-        /* Seat Grid */
-        .office-map {
+        .legend-color.changed {
+          background: var(--warning);
+        }
+        
+        /* Slot Grid */
+        .parking-map {
           display: grid;
           gap: 1rem;
           padding: 2rem;
         }
         
-        .seat {
+        .slot {
           height: 120px;
           border-radius: 16px;
           display: flex;
@@ -229,7 +237,7 @@ const SeatMap = ({ onBack, user }) => {
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
-        .seat::before {
+        .slot::before {
           content: '';
           position: absolute;
           top: 0;
@@ -241,41 +249,46 @@ const SeatMap = ({ onBack, user }) => {
           transition: opacity 0.3s ease;
         }
         
-        .seat:hover::before {
+        .slot:hover::before {
           opacity: 1;
         }
         
-        .seat.available {
+        .slot.available {
           background: linear-gradient(135deg, var(--success-light) 0%, #bbf7d0 100%);
           border-color: var(--success);
         }
         
-        .seat.available:hover {
+        .slot.available:hover {
           transform: translateY(-4px) scale(1.02);
           box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
         }
         
-        .seat.occupied {
+        .slot.occupied {
           background: linear-gradient(135deg, var(--danger-light) 0%, #fecaca 100%);
           border-color: var(--danger);
           cursor: not-allowed;
           opacity: 0.7;
         }
         
-        .seat.reserved {
+        .slot.reserved {
           background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
           border-color: var(--primary);
           box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
         }
         
-        .seat-number {
+        .slot.changed {
+          background: linear-gradient(135deg, var(--warning-light) 0%, #fef3c7 100%);
+          border-color: var(--warning);
+        }
+        
+        .slot-number {
           font-weight: 800;
           font-size: 20px;
           margin-bottom: 0.5rem;
           z-index: 1;
         }
         
-        .seat-status {
+        .slot-status {
           font-size: 12px;
           padding: 0.25rem 0.75rem;
           border-radius: 20px;
@@ -291,6 +304,11 @@ const SeatMap = ({ onBack, user }) => {
         .status-occupied {
           background: rgba(239, 68, 68, 0.2);
           color: #b91c1c;
+        }
+        
+        .status-changed {
+          background: rgba(245, 158, 11, 0.2);
+          color: #b45309;
         }
         
         .user-indicator {
@@ -462,7 +480,7 @@ const SeatMap = ({ onBack, user }) => {
             gap: 1rem;
           }
           
-          .office-map {
+          .parking-map {
             grid-template-columns: repeat(2, 1fr);
             padding: 1rem;
           }
@@ -478,21 +496,21 @@ const SeatMap = ({ onBack, user }) => {
         }
       `}</style>
       
-      {/* Area Selector */}
+      {/* Zone Selector */}
       <div className="area-selector">
         {[
-          { key: 'main', label: 'Main Area', icon: 'fas fa-building' },
-          { key: 'window', label: 'Window Side', icon: 'fas fa-sun' },
-          { key: 'quiet', label: 'Quiet Zone', icon: 'fas fa-volume-mute' },
-          { key: 'collaboration', label: 'Collaboration', icon: 'fas fa-users' }
-        ].map(area => (
+          { key: 'main', label: 'Main Parking', icon: 'fas fa-parking' },
+          { key: 'vip', label: 'VIP Parking', icon: 'fas fa-crown' },
+          { key: 'covered', label: 'Covered Parking', icon: 'fas fa-car' },
+          { key: 'handicap', label: 'Accessible Parking', icon: 'fas fa-wheelchair' }
+        ].map(zone => (
           <button
-            key={area.key}
-            className={`area-button ${selectedArea === area.key ? 'active' : ''}`}
-            onClick={() => setSelectedArea(area.key)}
+            key={zone.key}
+            className={`area-button ${selectedZone === zone.key ? 'active' : ''}`}
+            onClick={() => setSelectedZone(zone.key)}
           >
-            <i className={area.icon}></i>
-            {area.label}
+            <i className={zone.icon}></i>
+            {zone.label}
           </button>
         ))}
       </div>
@@ -501,7 +519,7 @@ const SeatMap = ({ onBack, user }) => {
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-value">{stats.total}</div>
-          <div className="stat-label">Total Seats</div>
+          <div className="stat-label">Total Slots</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">{stats.available}</div>
@@ -517,14 +535,14 @@ const SeatMap = ({ onBack, user }) => {
         </div>
       </div>
       
-      {/* Office Map */}
-      <div className="office-map-container">
+      {/* Parking Map */}
+      <div className="parking-map-container">
         <div className="map-header">
           <h2 className="map-title">
-            {selectedArea === 'main' && 'Main Office Area'}
-            {selectedArea === 'window' && 'Window Side Area'}
-            {selectedArea === 'quiet' && 'Quiet Zone'}
-            {selectedArea === 'collaboration' && 'Collaboration Zone'}
+            {selectedZone === 'main' && 'Main Parking Lot'}
+            {selectedZone === 'vip' && 'VIP Parking Area'}
+            {selectedZone === 'covered' && 'Covered Parking'}
+            {selectedZone === 'handicap' && 'Accessible Parking'}
           </h2>
           
           <div className="legend">
@@ -540,29 +558,34 @@ const SeatMap = ({ onBack, user }) => {
               <div className="legend-color reserved"></div>
               <span>Your Reservation</span>
             </div>
+            <div className="legend-item">
+              <div className="legend-color changed"></div>
+              <span>Status Changed</span>
+            </div>
           </div>
         </div>
 
-        {/* Seat Grid */}
+        {/* Slot Grid */}
         <div 
-          className="office-map" 
+          className="parking-map" 
           style={{ 
-            gridTemplateColumns: `repeat(${selectedArea === 'collaboration' ? 2 : 4}, 1fr)`
+            gridTemplateColumns: `repeat(${selectedZone === 'handicap' ? 2 : 4}, 1fr)`
           }}
         >
-          {officeLayout[selectedArea].map(seat => (
+          {parkingLayout[selectedZone].map(slot => (
             <div 
-              key={seat.id}
-              className={`seat ${seat.status} ${seat.id === 'B3' ? 'reserved' : ''}`}
-              onClick={() => handleSeatClick(seat)}
+              key={slot.id}
+              className={`slot ${slot.status} ${slot.id === 'P-12' ? 'reserved' : slot.id === 'P-06' ? 'changed' : ''}`}
+              onClick={() => handleSlotClick(slot)}
             >
-              <div className="seat-number">{seat.id}</div>
-              <div className={`seat-status status-${seat.status}`}>
-                {seat.status === 'available' ? 'Available' : 
-                 seat.id === 'B3' ? 'Your Seat' : 'Occupied'}
+              <div className="slot-number">{slot.id}</div>
+              <div className={`slot-status status-${slot.status}`}>
+                {slot.status === 'available' ? 'Available' : 
+                 slot.id === 'P-12' ? 'Reserved' : 
+                 slot.id === 'P-06' ? 'Changed' : 'Occupied'}
               </div>
-              {seat.id === 'B3' && (
-                <div className="user-indicator">JD</div>
+              {slot.id === 'P-12' && (
+                <div className="user-indicator">JS</div>
               )}
             </div>
           ))}
@@ -574,10 +597,32 @@ const SeatMap = ({ onBack, user }) => {
         <div className="modal-overlay" onClick={() => setShowReservationModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Reserve Seat {selectedSeat?.id}</h3>
+              <h3 className="modal-title">Reserve Slot {selectedSlot?.id}</h3>
               <button className="modal-close" onClick={() => setShowReservationModal(false)}>
                 <i className="fas fa-times"></i>
               </button>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Visitor Full Name</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter visitor's name"
+                value={visitorName}
+                onChange={(e) => setVisitorName(e.target.value)}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Vehicle License Plate</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter license plate number"
+                value={licensePlate}
+                onChange={(e) => setLicensePlate(e.target.value)}
+              />
             </div>
             
             <div className="form-group">
@@ -614,7 +659,7 @@ const SeatMap = ({ onBack, user }) => {
               <button 
                 className="btn btn-primary" 
                 onClick={handleReservation}
-                disabled={!reservationDate}
+                disabled={!reservationDate || !visitorName || !licensePlate}
               >
                 <i className="fas fa-check"></i> Confirm Reservation
               </button>
@@ -626,4 +671,4 @@ const SeatMap = ({ onBack, user }) => {
   );
 };
 
-export default SeatMap; 
+export default ParkingMap;

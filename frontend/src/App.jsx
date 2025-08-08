@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import Login from './pages/Login';
 import Register from './pages/Register';
 import InternDashboard from './pages/InternDashboard';
+import SeatMap from './pages/InternDashboard-2';
 import AdminDashboard from './pages/AdminDashboard';
 // AdminSeatManagement removed as per task requirements
 import { NavigationProvider } from './context/NavigationContext';
@@ -165,7 +166,7 @@ function App() {
             path="/intern/seatmap" 
             element={
               <ProtectedRoute user={user}>
-                <InternDashboard user={user} initialPage="seatmap" />
+                <SeatMap user={user} />
               </ProtectedRoute>
             } 
           />
