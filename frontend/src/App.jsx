@@ -4,8 +4,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import Login from './pages/Login';
 import Register from './pages/Register';
 import InternDashboard from './pages/InternDashboard';
-import SeatMap from './pages/InternDashboard-2';
+import SeatMap from './pages/Seatmap';
+import UserSettings from './pages/setting';
 import AdminDashboard from './pages/AdminDashboard';
+import History from './pages/history';
+import Reservation from './pages/Reservations';
 // AdminSeatManagement removed as per task requirements
 import { NavigationProvider } from './context/NavigationContext';
 
@@ -158,7 +161,7 @@ function App() {
             path="/intern/reservations" 
             element={
               <ProtectedRoute user={user}>
-                <InternDashboard user={user} initialPage="reservations" />
+                <Reservation user={user} />
               </ProtectedRoute>
             } 
           />
@@ -174,7 +177,7 @@ function App() {
             path="/intern/history" 
             element={
               <ProtectedRoute user={user}>
-                <InternDashboard user={user} initialPage="history" />
+                <History user={user} />
               </ProtectedRoute>
             } 
           />
@@ -182,7 +185,7 @@ function App() {
             path="/intern/settings" 
             element={
               <ProtectedRoute user={user}>
-                <InternDashboard user={user} initialPage="settings" />
+                <UserSettings user={user} />
               </ProtectedRoute>
             } 
           />

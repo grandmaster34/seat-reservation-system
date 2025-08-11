@@ -46,10 +46,25 @@ export const NavigationProvider = ({ children }) => {
 
   const navigateTo = (page) => {
     setCurrentPage(page);
-    if (page === 'dashboard') {
-      navigate('/intern');
-    } else {
-      navigate(`/intern/${page}`);
+    
+    switch (page) {
+      case 'dashboard':
+        navigate('/intern');
+        break;
+      case 'reservations':
+        navigate('/intern/reservations');
+        break;
+      case 'seatmap':
+        navigate('/intern/seatmap');
+        break;
+      case 'history':
+        navigate('/intern/history');
+        break;
+      case 'settings':
+        navigate('/intern/settings');
+        break;
+      default:
+        navigate('/intern');
     }
   };
 

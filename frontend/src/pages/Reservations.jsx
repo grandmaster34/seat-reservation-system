@@ -1,63 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '../context/NavigationContext';
 import InternLayout from '../components/InternLayout';
+import parkingService from '../services/parkingService';
 
 const ParkingReserve = ({ onBack, user }) => {
   const [activeFilter, setActiveFilter] = useState('All Reservations');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [reservations, setReservations] = useState([
-    {
-      id: 'PV-00123',
-      slot: 'P-001 - Visitor Parking',
-      location: 'Main Parking Lot',
-      date: 'Today, Aug 15',
-      time: '8:00 AM - 6:00 PM',
-      status: 'active',
-      visitorName: 'John Smith',
-      licensePlate: 'ABC-123'
-    },
-    {
-      id: 'PV-00124',
-      slot: 'P-005 - VIP Parking',
-      location: 'Building A Entrance',
-      date: 'Wed, Aug 17',
-      time: '9:00 AM - 5:00 PM',
-      status: 'upcoming',
-      visitorName: 'Sarah Johnson',
-      licensePlate: 'XYZ-789'
-    },
-    {
-      id: 'PV-00125',
-      slot: 'P-012 - Covered Parking',
-      location: 'Basement Level',
-      date: 'Fri, Aug 19',
-      time: '10:00 AM - 4:00 PM',
-      status: 'upcoming',
-      visitorName: 'Michael Chen',
-      licensePlate: 'DEF-456'
-    },
-    {
-      id: 'PV-00122',
-      slot: 'P-003 - Visitor Parking',
-      location: 'East Wing',
-      date: 'Mon, Aug 14',
-      time: 'Full Day',
-      status: 'past',
-      visitorName: 'Emily Williams',
-      licensePlate: 'GHI-789'
-    },
-    {
-      id: 'PV-00120',
-      slot: 'P-008 - Handicap Parking',
-      location: 'North Entrance',
-      date: 'Thu, Aug 10',
-      time: '1:00 PM - 5:00 PM',
-      status: 'cancelled',
-      visitorName: 'David Brown',
-      licensePlate: 'JKL-012'
-    }
-  ]);
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const today = new Date();
@@ -66,20 +18,40 @@ const ParkingReserve = ({ onBack, user }) => {
     
     setStartDate(today.toISOString().split('T')[0]);
     setEndDate(nextWeek.toISOString().split('T')[0]);
+    
+    fetchReservations();
   }, []);
+
+  const fetchReservations = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await parkingService.getParkingReservations();
+      setReservations(data);
+    } catch (err) {
+      setError('Failed to load reservations. Please try again.');
+      console.error('Error fetching reservations:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFilterChange = (filter) => {
     setActiveFilter(filter);
   };
 
-  const handleCancelReservation = (id) => {
+  const handleCancelReservation = async (id) => {
     const reservation = reservations.find(r => r.id === id);
     
-    if (reservation && reservation.status === 'upcoming') {
+    if (reservation && (reservation.status === 'upcoming' || reservation.status === 'active')) {
       if (window.confirm("Are you sure you want to cancel this parking reservation?")) {
-        setReservations(prev => prev.map(r => 
-          r.id === id ? { ...r, status: 'cancelled' } : r
-        ));
+        try {
+          await parkingService.cancelParkingReservation(id);
+          await fetchReservations();
+        } catch (err) {
+          alert('Failed to cancel reservation. Please try again.');
+          console.error('Error cancelling reservation:', err);
+        }
       }
     }
   };
@@ -366,6 +338,36 @@ const ParkingReserve = ({ onBack, user }) => {
         box-shadow: var(--card-shadow);
         padding: 2rem;
         border: 1px solid var(--border);
+      }
+
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem;
+        color: var(--secondary);
+      }
+
+      .error-container {
+        text-align: center;
+        padding: 2rem;
+        color: var(--danger);
+      }
+
+      .error-container button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background: var(--danger);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--secondary);
       }
 
       .reservations-header {

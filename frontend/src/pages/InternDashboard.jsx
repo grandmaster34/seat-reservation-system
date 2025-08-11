@@ -1,142 +1,186 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useNavigation } from '../context/NavigationContext';
-import InternSidebar from '../components/InternSidebar'; // Keep original name
-import InternHeader from '../components/InternHeader'; // Keep original name
-import SlotReserve from './InternDashboard-1'; // Keep original path but rename component
-import ParkingMap from './InternDashboard-2'; // Keep original path but rename component
-import ReservationHistory from './InternDashboard-3'; // Keep original path
-import UserSettings from './InternDashboard-4'; // Keep original path
+import InternSidebar from '../components/InternSidebar';
+import InternHeader from '../components/InternHeader';
+import api from '../api';
 
-const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
+const InternDashboard = ({ user, initialPage = 'dashboard' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentPage, navigateTo, goToDashboard } = useNavigation();
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [reservations, setReservations] = useState([
-    { 
-      id: 1, 
-      title: "Parking Slot P-12 - Main Lot", 
-      date: "Today, 15 Aug", 
-      time: "9:00 AM - 5:00 PM", 
-      status: "active", 
-      type: "active",
-      visitorName: "John Smith"
-    },
-    { 
-      id: 2, 
-      title: "Parking Slot P-07 - VIP Area", 
-      date: "Wed, 17 Aug", 
-      time: "10:00 AM - 2:00 PM", 
-      status: "upcoming", 
-      type: "upcoming",
-      visitorName: "Sarah Johnson"
-    },
-    { 
-      id: 3, 
-      title: "Parking Slot P-23 - East Wing", 
-      date: "Fri, 19 Aug", 
-      time: "Full day", 
-      status: "upcoming", 
-      type: "upcoming",
-      visitorName: "Michael Brown"
-    },
-    { 
-      id: 4, 
-      title: "Parking Slot P-15 - North Lot", 
-      date: "Mon, 14 Aug", 
-      time: "Full day", 
-      status: "past", 
-      type: "past",
-      visitorName: "Emily Davis"
-    }
-  ]);
-  
-  const [reservationDate, setReservationDate] = useState('');
-  
 
+  const [dashboardData, setDashboardData] = useState({
+    totalReservations: 0,
+    upcomingReservations: [],
+    recentActivity: [],
+    userProfile: null
+  });
+
+  const [reservations, setReservations] = useState([]);
+  const [parkingSlots, setParkingSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [reservationDate, setReservationDate] = useState('');
+  const [visitorName, setVisitorName] = useState('');
+  const [licensePlate, setLicensePlate] = useState('');
 
   useEffect(() => {
-    // Set today as default date
+    fetchDashboardData();
+    fetchReservations();
+    fetchParkingSlots();
+
     const today = new Date().toISOString().split('T')[0];
     setReservationDate(today);
-    
-    // Set min date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
-    document.getElementById('reservation-date')?.setAttribute('min', minDate);
   }, []);
 
-  const handleSelectSlot = (slotId) => {
-    setSelectedSlot(slotId);
-  };
-
-  const handleCancelReservation = (id) => {
-    if (window.confirm("Are you sure you want to cancel this parking reservation?")) {
-      setReservations(reservations.map(res => 
-        res.id === id ? { ...res, status: 'cancelled', type: 'past' } : res
-      ));
+  const fetchDashboardData = async () => {
+    try {
+      const response = await api.get('/intern/dashboard');
+      if (response.data.success) {
+        setDashboardData(response.data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleNavigation = (page) => {
-    navigateTo(page);
+  const fetchReservations = async () => {
+    try {
+      const response = await api.get('/intern/reservations');
+      if (response.data.success) {
+        setReservations(response.data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching reservations:', err);
+    }
   };
 
-  const handleBackToDashboard = () => {
-    goToDashboard();
+  const fetchParkingSlots = async () => {
+    try {
+      const response = await api.get('/seats');
+      console.log('Parking slots response:', response.data);
+      
+      if (response.data && response.data.data) {
+        const seats = response.data.data;
+        const slots = seats.map(seat => ({
+          id: seat.seat_number || seat.seatNumber,
+          status: seat.status === 'available' ? 'available' : 'occupied',
+          location: seat.location || 'Main Area',
+          seatId: seat.id
+        }));
+        setParkingSlots(slots);
+        console.log('Processed parking slots:', slots);
+      } else if (response.data && Array.isArray(response.data)) {
+        // Handle direct array response
+        const slots = response.data.map(seat => ({
+          id: seat.seat_number || seat.seatNumber,
+          status: seat.status === 'available' ? 'available' : 'occupied',
+          location: seat.location || 'Main Area',
+          seatId: seat.id
+        }));
+        setParkingSlots(slots);
+        console.log('Processed parking slots (direct array):', slots);
+      } else {
+        console.warn('No parking slots data found');
+        setParkingSlots([]);
+      }
+    } catch (err) {
+      console.error('Error fetching parking slots:', err);
+      setParkingSlots([]);
+    }
   };
 
-  const parkingSlots = [
-    { id: 'P-01', status: 'available' },
-    { id: 'P-02', status: 'available' },
-    { id: 'P-03', status: 'occupied' },
-    { id: 'P-04', status: 'occupied' },
-    { id: 'P-05', status: 'available' },
-    { id: 'P-06', status: 'occupied' },
-    { id: 'P-07', status: 'available' },
-    { id: 'P-08', status: 'occupied' },
-    { id: 'P-09', status: 'occupied' },
-    { id: 'P-10', status: 'available' },
-    { id: 'P-11', status: 'occupied' },
-    { id: 'P-12', status: 'available' },
-    { id: 'P-13', status: 'available' },
-    { id: 'P-14', status: 'occupied' },
-    { id: 'P-15', status: 'available' },
-    { id: 'P-16', status: 'occupied' },
-    { id: 'P-17', status: 'available' },
-    { id: 'P-18', status: 'occupied' },
-    { id: 'P-19', status: 'available' },
-    { id: 'P-20', status: 'occupied' },
-    { id: 'P-21', status: 'available' },
-    { id: 'P-22', status: 'occupied' },
-    { id: 'P-23', status: 'available' },
-    { id: 'P-24', status: 'occupied' },
-    { id: 'P-25', status: 'available' },
-    { id: 'P-26', status: 'available' },
-    { id: 'P-27', status: 'available' },
-    { id: 'P-28', status: 'available' },
-  ];
+  const handleSelectSlot = (slotId) => {
+    const slot = parkingSlots.find(s => s.id === slotId);
+    if (slot && slot.status === 'available') {
+      setSelectedSlot(slot);
+    }
+  };
 
-  // If current page is reservations, render the SlotReserve component
-  if (currentPage === 'reservations') {
-    return <SlotReserve onBack={handleBackToDashboard} user={user} />;
-  }
+  const handleCreateReservation = async () => {
+    if (!selectedSlot || !visitorName || !licensePlate || !reservationDate) {
+      alert('Please fill in all required fields');
+      return;
+    }
 
-  // If current page is parkingmap, render the ParkingMap component
-  if (currentPage === 'parkingmap') {
-    return <ParkingMap onBack={handleBackToDashboard} user={user} />;
-  }
+    try {
+      console.log('Creating reservation with:', {
+        seat_id: selectedSlot.seatId,
+        reservation_date: reservationDate,
+        visitor_name: visitorName,
+        license_plate: licensePlate,
+        time_slot: 'Full day'
+      });
 
-  // If current page is history, render the ReservationHistory component
-  if (currentPage === 'history') {
-    return <ReservationHistory onBack={handleBackToDashboard} user={user} />;
-  }
+      const response = await api.post('/intern/reservations', {
+        seat_id: selectedSlot.seatId,
+        reservation_date: reservationDate,
+        visitor_name: visitorName,
+        license_plate: licensePlate,
+        time_slot: 'Full day'
+      });
 
-  // If current page is settings, render the UserSettings component
-  if (currentPage === 'settings') {
-    return <UserSettings onBack={handleBackToDashboard} user={user} />;
+      if (response.data.success) {
+        alert('Reservation created successfully!');
+        fetchDashboardData();
+        fetchReservations();
+        fetchParkingSlots();
+        setSelectedSlot(null);
+        setVisitorName('');
+        setLicensePlate('');
+      }
+    } catch (err) {
+      console.error('Error creating reservation:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to create reservation. Please try again.';
+      alert(errorMessage);
+    }
+  };
+
+  const handleCancelReservation = async (reservationId) => {
+    if (window.confirm('Are you sure you want to cancel this reservation?')) {
+      try {
+        const response = await api.put(`/intern/reservations/${reservationId}/cancel`);
+        if (response.data.success) {
+          alert('Reservation cancelled successfully!');
+          fetchDashboardData();
+          fetchReservations();
+        }
+      } catch (err) {
+        console.error('Error cancelling reservation:', err);
+        alert('Failed to cancel reservation. Please try again.');
+      }
+    }
+  };
+
+  const handleDeleteReservation = async (reservationId) => {
+    if (window.confirm('Are you sure you want to delete this cancelled reservation? This action cannot be undone.')) {
+      try {
+        const response = await api.delete(`/intern/reservations/${reservationId}`);
+        if (response.data.success) {
+          alert('Reservation deleted successfully!');
+          fetchDashboardData();
+          fetchReservations();
+        }
+      } catch (err) {
+        console.error('Error deleting reservation:', err);
+        const errorMessage = err.response?.data?.message || 'Failed to delete reservation. Please try again.';
+        alert(errorMessage);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg">Loading dashboard...</div>
+      </div>
+    );
   }
 
   return (
@@ -162,35 +206,35 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
           --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        
+
         * {
           box-sizing: border-box;
           margin: 0;
           padding: 0;
         }
-        
+
         body {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           background-color: #f5f7fa;
           color: var(--dark);
           line-height: 1.5;
         }
-        
+
         /* Dashboard Layout */
         .dashboard {
           display: flex;
           min-height: 100vh;
           background-color: #f5f7fa;
         }
-        
+
         .main-content {
           flex: 1;
           padding: 20px;
-          padding-left: 100px; /* Reduced gap for sidebar width */
+          padding-left: 100px;
           transition: var(--transition);
           padding-right: 50px;
         }
-        
+
         /* Dashboard Cards */
         .dashboard-cards {
           display: grid;
@@ -198,7 +242,7 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           gap: 20px;
           margin-bottom: 30px;
         }
-        
+
         .card {
           background: white;
           border-radius: 16px;
@@ -208,25 +252,25 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           position: relative;
           overflow: hidden;
         }
-        
+
         .card:hover {
           transform: translateY(-5px);
           box-shadow: var(--card-shadow-hover);
         }
-        
+
         .card-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 16px;
         }
-        
+
         .card-title {
           font-size: 1rem;
           font-weight: 600;
           color: var(--secondary);
         }
-        
+
         .card-icon {
           width: 48px;
           height: 48px;
@@ -236,36 +280,36 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           justify-content: center;
           font-size: 1.2rem;
         }
-        
+
         .bg-blue { background-color: var(--primary-light); color: var(--primary); }
         .bg-green { background-color: var(--success-light); color: var(--success); }
         .bg-orange { background-color: var(--warning-light); color: var(--warning); }
-        
+
         .card-value {
           font-size: 2rem;
           font-weight: 700;
           margin-bottom: 8px;
           color: var(--dark);
         }
-        
+
         .card-text {
           font-size: 0.9rem;
           color: var(--secondary);
         }
-        
+
         /* Panel Styles */
         .reservation-section {
           display: grid;
           grid-template-columns: 1fr;
           gap: 24px;
         }
-        
+
         @media (min-width: 1200px) {
           .reservation-section {
             grid-template-columns: 2fr 1fr;
           }
         }
-        
+
         .panel {
           background: white;
           border-radius: 16px;
@@ -273,33 +317,33 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           overflow: hidden;
           transition: var(--transition);
         }
-        
+
         .panel:hover {
           box-shadow: var(--card-shadow-hover);
         }
-        
+
         .panel-header {
           padding: 20px 24px;
           border-bottom: 1px solid var(--border);
         }
-        
+
         .panel-title {
           font-size: 1.25rem;
           font-weight: 700;
           color: var(--dark);
         }
-        
+
         .panel-body {
           padding: 24px;
         }
-        
+
         /* Form Elements */
         .date-selector {
           display: flex;
           gap: 12px;
           margin-bottom: 24px;
         }
-        
+
         .date-input, input[type="text"], input[type="date"] {
           flex: 1;
           padding: 12px 16px;
@@ -308,17 +352,17 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           font-size: 0.9rem;
           transition: var(--transition);
         }
-        
+
         .date-input:focus, input[type="text"]:focus, input[type="date"]:focus {
           outline: none;
           border-color: var(--primary);
           box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
-        
+
         .visitor-info {
           margin-bottom: 24px;
         }
-        
+
         /* Buttons */
         .btn {
           padding: 12px 20px;
@@ -333,26 +377,31 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           border: none;
           font-size: 0.9rem;
         }
-        
+
         .btn-primary {
           background: var(--primary);
           color: white;
         }
-        
+
         .btn-primary:hover {
           background: var(--primary-dark);
         }
-        
+
         .btn-outline {
           background: transparent;
           border: 1px solid var(--border);
           color: var(--secondary);
         }
-        
+
         .btn-outline:hover {
           background: var(--light);
         }
-        
+
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
         /* Parking Lot Grid */
         .parking-lot {
           display: grid;
@@ -360,7 +409,7 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           gap: 16px;
           margin-top: 16px;
         }
-        
+
         .slot {
           height: 120px;
           border-radius: 16px;
@@ -376,37 +425,37 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           overflow: hidden;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        
+
         .slot:hover {
           transform: translateY(-3px);
           box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
         }
-        
+
         .slot.available {
           background: linear-gradient(135deg, var(--success-light) 0%, #bbf7d0 100%);
           border-color: var(--success);
         }
-        
+
         .slot.selected {
           background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
           border-color: var(--primary);
           box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
         }
-        
+
         .slot.occupied {
           background: linear-gradient(135deg, var(--danger-light) 0%, #fecaca 100%);
           border-color: var(--danger);
           cursor: not-allowed;
           opacity: 0.8;
         }
-        
+
         .slot-number {
           font-weight: 800;
           font-size: 20px;
           margin-bottom: 8px;
           z-index: 1;
         }
-        
+
         .slot-status {
           font-size: 12px;
           padding: 4px 12px;
@@ -414,24 +463,24 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           font-weight: 600;
           z-index: 1;
         }
-        
+
         .status-available {
           background: rgba(16, 185, 129, 0.2);
           color: #166534;
         }
-        
+
         .status-occupied {
           background: rgba(239, 68, 68, 0.2);
           color: #b91c1c;
         }
-        
+
         /* Reservations List */
         .reservations {
           display: flex;
           flex-direction: column;
           gap: 16px;
         }
-        
+
         .reservation-item {
           display: flex;
           align-items: center;
@@ -441,11 +490,11 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           transition: var(--transition);
           position: relative;
         }
-        
+
         .reservation-item:hover {
           background: #f1f5f9;
         }
-        
+
         .reservation-icon {
           width: 48px;
           height: 48px;
@@ -459,12 +508,12 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           margin-right: 16px;
           flex-shrink: 0;
         }
-        
+
         .reservation-details {
           flex: 1;
           min-width: 0;
         }
-        
+
         .reservation-title {
           font-weight: 600;
           margin-bottom: 4px;
@@ -472,7 +521,7 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        
+
         .reservation-meta {
           display: flex;
           gap: 16px;
@@ -480,13 +529,13 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           color: var(--secondary);
           margin-bottom: 4px;
         }
-        
+
         .reservation-meta span {
           display: flex;
           align-items: center;
           gap: 4px;
         }
-        
+
         .visitor-name {
           font-size: 0.85rem;
           color: var(--secondary);
@@ -494,7 +543,7 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           align-items: center;
           gap: 4px;
         }
-        
+
         .tag {
           padding: 4px 12px;
           border-radius: 20px;
@@ -502,28 +551,28 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           font-weight: 600;
           margin-left: 12px;
         }
-        
+
         .tag-active {
           background: rgba(16, 185, 129, 0.1);
           color: var(--success);
         }
-        
+
         .tag-upcoming {
           background: rgba(245, 158, 11, 0.1);
           color: var(--warning);
         }
-        
+
         .tag-past {
           background: rgba(100, 116, 139, 0.1);
           color: var(--secondary);
         }
-        
+
         .reservation-actions {
           display: flex;
           gap: 8px;
           margin-left: 12px;
         }
-        
+
         .btn-icon {
           width: 36px;
           height: 36px;
@@ -536,79 +585,76 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
           cursor: pointer;
           transition: var(--transition);
         }
-        
+
         .btn-edit {
           color: var(--secondary);
         }
-        
+
         .btn-edit:hover {
           background: var(--gray);
         }
-        
+
         .btn-cancel {
           color: var(--danger);
         }
-        
+
         .btn-cancel:hover {
           background: var(--danger-light);
         }
-        
+
         /* Responsive Adjustments */
         @media (max-width: 992px) {
           .main-content {
             padding-left: 80px;
           }
         }
-        
+
         @media (max-width: 768px) {
           .main-content {
             padding: 15px;
             padding-left: 70px;
           }
-          
+
           .date-selector {
             flex-direction: column;
           }
-          
+
           .reservation-item {
             flex-wrap: wrap;
           }
-          
+
           .tag {
             position: absolute;
             top: 16px;
             right: 16px;
           }
-          
+
           .reservation-actions {
             margin-left: auto;
             margin-top: 10px;
           }
         }
-        
+
         /* Animation Enhancements */
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .card, .panel {
           animation: fadeIn 0.4s ease-out;
         }
-        
+
         .card:nth-child(2) { animation-delay: 0.1s; }
         .card:nth-child(3) { animation-delay: 0.2s; }
         .panel:nth-child(2) { animation-delay: 0.3s; }
       `}</style>
-      
-      {/* Sidebar */}
+
       <InternSidebar user={user} />
-      
-      {/* Main Content */}
+
       <main className="main-content">
         <InternHeader title="Visitor Parking Reservation" user={user} />
-        
-        {/* Dashboard Cards */}
+
         <div className="dashboard-cards">
           <div className="card">
             <div className="card-header">
@@ -617,10 +663,10 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
                 <i className="fas fa-parking"></i>
               </div>
             </div>
-            <div className="card-value">18</div>
+            <div className="card-value">{parkingSlots.filter(s => s.status === 'available').length}</div>
             <div className="card-text">Slots available today</div>
           </div>
-          
+
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">Your Reservations</h3>
@@ -628,10 +674,10 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
                 <i className="fas fa-calendar-check"></i>
               </div>
             </div>
-            <div className="card-value">3</div>
+            <div className="card-value">{dashboardData.totalReservations}</div>
             <div className="card-text">Active and upcoming</div>
           </div>
-          
+
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">Parking Capacity</h3>
@@ -639,62 +685,68 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
                 <i className="fas fa-car"></i>
               </div>
             </div>
-            <div className="card-value">72%</div>
+            <div className="card-value">
+              {parkingSlots.length > 0
+                ? Math.round(((parkingSlots.length - parkingSlots.filter(s => s.status === 'available').length) / parkingSlots.length) * 100) + '%'
+                : 'N/A'}
+            </div>
             <div className="card-text">Current utilization rate</div>
           </div>
         </div>
-        
-        {/* Reservation Section */}
+
         <div className="reservation-section">
-          {/* Parking Booking Panel */}
           <div className="panel">
             <div className="panel-header">
               <h2 className="panel-title">Reserve a Parking Slot</h2>
             </div>
             <div className="panel-body">
               <div className="date-selector">
-                <input 
-                  type="date" 
-                  className="date-input" 
+                <input
+                  type="date"
+                  className="date-input"
                   id="reservation-date"
                   value={reservationDate}
                   onChange={(e) => setReservationDate(e.target.value)}
                 />
-                <button className="btn btn-primary">
-                  <i className="fas fa-search"></i> Check Availability
+                <button className="btn btn-primary" onClick={handleCreateReservation} disabled={!selectedSlot || !visitorName || !licensePlate}>
+                  <i className="fas fa-check-circle"></i> Confirm Reservation
                 </button>
               </div>
-              
-              <div className="visitor-info" style={{marginBottom: '1.5rem'}}>
-                <h3 style={{marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700'}}>
+
+              <div className="visitor-info" style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700' }}>
                   Visitor Information
                 </h3>
                 <input
                   type="text"
                   className="date-input"
                   placeholder="Visitor's Full Name"
-                  style={{marginBottom: '1rem'}}
+                  value={visitorName}
+                  onChange={(e) => setVisitorName(e.target.value)}
+                  style={{ marginBottom: '1rem' }}
                 />
                 <input
                   type="text"
                   className="date-input"
                   placeholder="Vehicle License Plate"
+                  value={licensePlate}
+                  onChange={(e) => setLicensePlate(e.target.value)}
                 />
               </div>
-              
-              <h3 style={{marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700'}}>
+
+              <h3 style={{ marginBottom: '0.5rem', color: 'var(--dark)', fontWeight: '700' }}>
                 Parking Lot - Main Area
               </h3>
-              <p className="card-text" style={{marginBottom: '1.5rem'}}>
+              <p className="card-text" style={{ marginBottom: '1.5rem' }}>
                 Select an available slot for your visitor
               </p>
-              
+
               <div className="parking-lot">
                 {parkingSlots.map((slot) => (
-                  <div 
+                  <div
                     key={slot.id}
-                    className={`slot ${slot.status} ${selectedSlot === slot.id ? 'selected' : ''}`}
-                    onClick={() => slot.status === 'available' && handleSelectSlot(slot.id)}
+                    className={`slot ${slot.status} ${selectedSlot && selectedSlot.id === slot.id ? 'selected' : ''}`}
+                    onClick={() => handleSelectSlot(slot.id)}
                   >
                     <div className="slot-number">{slot.id}</div>
                     <div className={`slot-status status-${slot.status}`}>
@@ -703,61 +755,69 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
                   </div>
                 ))}
               </div>
-              
-              <div style={{marginTop: '2rem', display: 'flex', gap: '1rem'}}>
-                <button className="btn btn-primary" style={{flex: 1}}>
-                  <i className="fas fa-check-circle"></i> Confirm Reservation
-                </button>
-                <button 
-                  className="btn btn-outline" 
-                  style={{flex: 1}}
-                  onClick={() => setSelectedSlot(null)}
-                >
+
+              <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setSelectedSlot(null)}>
                   Clear Selection
                 </button>
               </div>
             </div>
           </div>
-          
-          {/* Reservations Panel */}
+
           <div className="panel">
             <div className="panel-header">
               <h2 className="panel-title">Your Reservations</h2>
             </div>
             <div className="panel-body">
               <div className="reservations">
-                {reservations.map(reservation => (
+                {reservations.length === 0 && <p>No reservations found.</p>}
+                {reservations.map((reservation) => (
                   <div key={reservation.id} className="reservation-item">
                     <div className="reservation-icon">
-                      <i className={
-                        reservation.status === 'active' ? 'fas fa-car' : 
-                        reservation.status === 'cancelled' ? 'fas fa-times-circle' : 
-                        'fas fa-calendar-alt'
-                      }></i>
+                      <i
+                        className={
+                          reservation.status === 'active'
+                            ? 'fas fa-car'
+                            : reservation.status === 'cancelled'
+                            ? 'fas fa-times-circle'
+                            : 'fas fa-calendar-alt'
+                        }
+                      ></i>
                     </div>
                     <div className="reservation-details">
-                      <div className="reservation-title">{reservation.title}</div>
-                      <div className="reservation-meta">
-                        <span><i className="far fa-calendar"></i> {reservation.date}</span>
-                        <span><i className="far fa-clock"></i> {reservation.time}</span>
+                      <div className="reservation-title">
+                        Parking Slot {reservation.seat_number} - {reservation.location}
                       </div>
-                      <div className="visitor-name" style={{marginTop: '0.5rem', fontSize: '14px'}}>
-                        <i className="fas fa-user"></i> {reservation.visitorName}
+                      <div className="reservation-meta">
+                        <span>
+                          <i className="far fa-calendar"></i> {new Date(reservation.reservation_date).toLocaleDateString()}
+                        </span>
+                        <span>
+                          <i className="far fa-clock"></i> {reservation.time_slot}
+                        </span>
+                      </div>
+                      <div className="visitor-name" style={{ marginTop: '0.5rem', fontSize: '14px' }}>
+                        <i className="fas fa-user"></i> {reservation.visitor_name}
                       </div>
                     </div>
-                    <div className={`tag tag-${reservation.type}`}>
+                    <div className={`tag tag-${reservation.status === 'active' ? 'active' : 'past'}`}>
                       {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
                     </div>
-                    {reservation.type === 'upcoming' && (
+                    {reservation.status === 'active' && (
                       <div className="reservation-actions">
-                        <button className="btn-icon btn-edit">
-                          <i className="fas fa-edit"></i>
-                        </button>
-                        <button 
-                          className="btn-icon btn-cancel"
-                          onClick={() => handleCancelReservation(reservation.id)}
-                        >
+                        <button className="btn-icon btn-cancel" onClick={() => handleCancelReservation(reservation.id)}>
                           <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                    )}
+                    {reservation.status === 'cancelled' && (
+                      <div className="reservation-actions">
+                        <button 
+                          className="btn-icon btn-cancel" 
+                          onClick={() => handleDeleteReservation(reservation.id)}
+                          title="Delete cancelled reservation"
+                        >
+                          <i className="fas fa-trash"></i>
                         </button>
                       </div>
                     )}
@@ -772,4 +832,4 @@ const EmployeeDashboard = ({ user, initialPage = 'dashboard' }) => {
   );
 };
 
-export default EmployeeDashboard;
+export default InternDashboard;

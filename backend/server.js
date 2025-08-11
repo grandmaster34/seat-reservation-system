@@ -1,13 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const seatRoutes = require('./routes/seatRoutes');
 const testRoutes = require('./routes/testRoutes');
+const internRoutes = require('./routes/internRoutes');
 
-dotenv.config();
 const app = express();
 
 // CORS configuration for frontend
@@ -26,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/seats', seatRoutes);
 app.use('/api/test', testRoutes);
+app.use('/api/intern', internRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -61,5 +61,3 @@ app.listen(PORT, () => {
   console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
   console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
 });
-
-
